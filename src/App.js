@@ -16,11 +16,12 @@ const firebaseConfig = {
   apiKey: "AIzaSyA_t0Dy1suCtHT-BA6dZWJ3pM2D77h5v7w",
   authDomain: "my-react-app-4ed71.firebaseapp.com",
   projectId: "my-react-app-4ed71",
-  storageBucket: "my-react-app-4ed71.firebasestorage.app",
+  storageBucket: "my-react-app-4ed71.appspot.com",
   messagingSenderId: "79329533394",
   appId: "1:79329533394:web:b2e2c869c0a41a4f17fc0b",
   measurementId: "G-8ZW9F9QTEJ"
 };
+
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
