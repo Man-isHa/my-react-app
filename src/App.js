@@ -11,8 +11,31 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { initializeApp } from "firebase/app";
+import {
+  getDatabase,
+  ref,
+  push,
+  onValue,
+  set,
+  get,
+  remove,
+} from "firebase/database";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
 function App() {
   const [scans, setScans] = useState([]);
@@ -20,41 +43,19 @@ function App() {
   const [guess, setGuess] = useState("");
   const [result, setResult] = useState(null);
   const [isComplete, setIsComplete] = useState(false);
-  const [timer, setTimer] = useState(60); // Timer duration in seconds
-  const [timerRunning, setTimerRunning] = useState(false);
 
-  // Retrieve previous responses from localStorage
   useEffect(() => {
-    const storedScans = JSON.parse(localStorage.getItem("scans") || "[]");
-    setScans(storedScans);
+    const scansRef = ref(db, "scans");
+    onValue(scansRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const scanList = Object.values(data);
+        setScans(scanList);
+      } else {
+        setScans([]);
+      }
+    });
   }, []);
-
-  // Save updated scans to localStorage
-  useEffect(() => {
-    localStorage.setItem("scans", JSON.stringify(scans));
-  }, [scans]);
-
-  // Shared countdown timer across all clients
-  useEffect(() => {
-    const storedStartTime = localStorage.getItem("startTime");
-    if (storedStartTime && !isComplete) {
-      const interval = setInterval(() => {
-        const elapsed = Math.floor((Date.now() - parseInt(storedStartTime)) / 1000);
-        const remaining = Math.max(0, 60 - elapsed);
-        setTimer(remaining);
-        if (remaining === 0) {
-          clearInterval(interval);
-          handleComplete();
-        }
-      }, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [isComplete]);
-
-  const startTimer = () => {
-    localStorage.setItem("startTime", Date.now().toString());
-    setTimerRunning(true);
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -64,7 +65,8 @@ function App() {
       guess: Number(guess),
       timestamp: new Date().toISOString(),
     };
-    setScans((prev) => [...prev, newScan]);
+    const newScanRef = push(ref(db, "scans"));
+    set(newScanRef, newScan);
     setName("");
     setGuess("");
   };
@@ -72,7 +74,6 @@ function App() {
   const handleComplete = () => {
     if (scans.length === 0) return;
 
-    // Combine all guesses per player and compute average
     const playerMap = new Map();
     scans.forEach((scan) => {
       const { name, guess } = scan;
@@ -105,7 +106,7 @@ function App() {
     setIsComplete(true);
   };
 
-  const currentUrl = "https://man-isha.github.io/my-react-app";
+  const currentUrl = window.location.href;
 
   const chartData = {
     labels: Array.from(new Set(scans.map((scan) => scan.name))),
@@ -154,48 +155,44 @@ function App() {
     <div style={{ padding: "40px", fontFamily: "Arial", fontSize: "32px" }}>
       <h1 style={{ fontSize: "40px" }}>Guess 2/3 of the Average Game</h1>
 
-      {!timerRunning && !isComplete && (
-        <button
-          onClick={startTimer}
-          style={{ fontSize: "32px", padding: "12px 24px", marginBottom: "20px" }}
-        >
-          Start Timer
-        </button>
+      {!isComplete && (
+        <form onSubmit={handleSubmit} style={{ marginBottom: "40px" }}>
+          <div style={{ marginBottom: "20px" }}>
+            <input
+              style={{ fontSize: "32px", padding: "12px", marginRight: "20px" }}
+              type="text"
+              placeholder="Your name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <input
+              style={{ fontSize: "32px", padding: "12px", marginRight: "20px" }}
+              type="number"
+              placeholder="Your guess (1-100)"
+              value={guess}
+              onChange={(e) => setGuess(e.target.value)}
+            />
+            <button style={{ fontSize: "32px", padding: "12px 24px" }} type="submit">
+              Submit
+            </button>
+          </div>
+        </form>
       )}
-
-      {timerRunning && !isComplete && (
-        <div style={{ fontSize: "32px", marginBottom: "20px" }}>
-          Time Remaining: {timer} seconds
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} style={{ marginBottom: "40px" }}>
-        <div style={{ marginBottom: "20px" }}>
-          <input
-            style={{ fontSize: "32px", padding: "12px", marginRight: "20px" }}
-            type="text"
-            placeholder="Your name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <input
-            style={{ fontSize: "32px", padding: "12px", marginRight: "20px" }}
-            type="number"
-            placeholder="Your guess (1-100)"
-            value={guess}
-            onChange={(e) => setGuess(e.target.value)}
-          />
-          <button style={{ fontSize: "32px", padding: "12px 24px" }} type="submit">
-            Submit
-          </button>
-        </div>
-      </form>
 
       {!isComplete && (
         <div style={{ marginBottom: "30px" }}>
           <h2 style={{ fontSize: "36px" }}>Scan to Submit</h2>
           <QRCode value={currentUrl} size={256} />
         </div>
+      )}
+
+      {!isComplete && (
+        <button
+          onClick={handleComplete}
+          style={{ fontSize: "32px", padding: "12px 24px", marginBottom: "40px" }}
+        >
+          Complete Game
+        </button>
       )}
 
       {result && (
