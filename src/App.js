@@ -31,6 +31,7 @@ const App = () => {
   const [responses, setResponses] = useState([]);
   const [submitted, setSubmitted] = useState(false);
   const [clientId] = useState(() => uuidv4());
+  const [winner, setWinner] = useState(null);
 
   const currentUrl = "https://man-isha.github.io/my-react-app";
 
@@ -83,16 +84,21 @@ const App = () => {
     const guesses = responses.map((r) => r.guess);
     const avg = guesses.reduce((a, b) => a + b, 0) / guesses.length;
     const target = (2 / 3) * avg;
-    let winner = responses[0];
+    let winnerEntry = responses[0];
     let minDiff = Math.abs(responses[0].guess - target);
     for (let i = 1; i < responses.length; i++) {
       const diff = Math.abs(responses[i].guess - target);
       if (diff < minDiff) {
         minDiff = diff;
-        winner = responses[i];
+        winnerEntry = responses[i];
       }
     }
-    alert(`Average: ${avg.toFixed(2)} | 2/3 Avg: ${target.toFixed(2)} | Winner: ${winner.name} with guess ${winner.guess}`);
+    setWinner({
+      name: winnerEntry.name,
+      guess: winnerEntry.guess,
+      avg: avg.toFixed(2),
+      target: target.toFixed(2)
+    });
   };
 
   const handleResetResponses = async () => {
@@ -104,15 +110,15 @@ const App = () => {
     await Promise.all(deletions);
     alert("All responses have been reset.");
 
-    // Reset local state
     setSubmitted(false);
     setName("");
     setGuess("");
+    setWinner(null);
   };
 
   return (
     <div style={{ padding: 40, fontSize: "1.5rem" }}>
-      <h1>Guessing Game</h1>
+      <h1>2/3 Guessing of Average</h1>
       <form onSubmit={handleSubmit}>
         <div>
           <label>Name: </label>
@@ -144,13 +150,6 @@ const App = () => {
       <h2 style={{ marginTop: 40 }}>Scan to Submit</h2>
       <QRCode value={currentUrl} size={256} />
 
-      <h2 style={{ marginTop: 40 }}>Live Responses</h2>
-      <ul>
-        {responses.map((res) => (
-          <li key={res.id}>{res.name}: {res.guess}</li>
-        ))}
-      </ul>
-
       <h2 style={{ marginTop: 40 }}>Game Controls</h2>
       <div style={{ display: "flex", gap: "20px", marginTop: 10 }}>
         <button onClick={handleComplete} style={{ fontSize: "1.2rem" }}>
@@ -164,6 +163,15 @@ const App = () => {
           Reset Responses
         </button>
       </div>
+
+      {winner && (
+        <div style={{ marginTop: 40 }}>
+          <h2 style={{ color: "red" }}>
+            Winner: {winner.name} with guess {winner.guess} <br />
+            (Average: {winner.avg}, 2/3 Avg: {winner.target})
+          </h2>
+        </div>
+      )}
     </div>
   );
 };
