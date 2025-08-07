@@ -7,6 +7,8 @@ import {
   setDoc,
   doc,
   onSnapshot,
+  deleteDoc,
+  getDocs
 } from "firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
 
@@ -31,7 +33,6 @@ const App = () => {
   const [clientId] = useState(() => uuidv4());
 
   const currentUrl = "https://man-isha.github.io/my-react-app";
-
 
   useEffect(() => {
     const unsub = onSnapshot(
@@ -94,6 +95,13 @@ const App = () => {
     alert(`Average: ${avg.toFixed(2)} | 2/3 Avg: ${target.toFixed(2)} | Winner: ${winner.name} with guess ${winner.guess}`);
   };
 
+  const handleResetResponses = async () => {
+    const querySnapshot = await getDocs(collection(db, "responses"));
+    const deletions = querySnapshot.docs.map((docSnap) => deleteDoc(doc(db, "responses", docSnap.id)));
+    await Promise.all(deletions);
+    alert("All responses have been reset.");
+  };
+
   return (
     <div style={{ padding: 40, fontSize: "1.5rem" }}>
       <h1>Guessing Game</h1>
@@ -137,6 +145,10 @@ const App = () => {
 
       <button onClick={handleComplete} style={{ fontSize: "1.2rem", marginTop: 20 }}>
         Complete and Show Winner
+      </button>
+
+      <button onClick={handleResetResponses} style={{ fontSize: "1.2rem", marginTop: 20, marginLeft: 10 }}>
+        Reset Responses
       </button>
     </div>
   );
