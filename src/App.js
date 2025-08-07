@@ -96,6 +96,9 @@ const App = () => {
   };
 
   const handleResetResponses = async () => {
+    const confirmed = window.confirm("Are you sure you want to reset all responses?");
+    if (!confirmed) return;
+
     const querySnapshot = await getDocs(collection(db, "responses"));
     const deletions = querySnapshot.docs.map((docSnap) => deleteDoc(doc(db, "responses", docSnap.id)));
     await Promise.all(deletions);
@@ -143,13 +146,19 @@ const App = () => {
         ))}
       </ul>
 
-      <button onClick={handleComplete} style={{ fontSize: "1.2rem", marginTop: 20 }}>
-        Complete and Show Winner
-      </button>
+      <h2 style={{ marginTop: 40 }}>Game Controls</h2>
+      <div style={{ display: "flex", gap: "20px", marginTop: 10 }}>
+        <button onClick={handleComplete} style={{ fontSize: "1.2rem" }}>
+          Complete and Show Winner
+        </button>
 
-      <button onClick={handleResetResponses} style={{ fontSize: "1.2rem", marginTop: 20, marginLeft: 10 }}>
-        Reset Responses
-      </button>
+        <button
+          onClick={handleResetResponses}
+          style={{ fontSize: "1.2rem", backgroundColor: "#f44336", color: "white" }}
+        >
+          Reset Responses
+        </button>
+      </div>
     </div>
   );
 };
