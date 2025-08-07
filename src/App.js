@@ -5,7 +5,7 @@ import { initializeApp } from "firebase/app";
 import {
   getFirestore,
   collection,
-  setDoc,
+  addDoc,
   onSnapshot,
   deleteDoc,
   getDocs,
@@ -42,7 +42,7 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name || isNaN(guess) || guess < 1 || guess > 100) return;
-    await setDoc(doc(db, "responses", name), {
+    await addDoc(collection(db, "responses"), {
       name,
       guess: Number(guess),
       timestamp: new Date(),
@@ -81,7 +81,6 @@ function App() {
   };
 
   const currentUrl = "https://man-isha.github.io/my-react-app";
-
 
   return (
     <div style={{ padding: "40px", fontFamily: "Arial", fontSize: "28px" }}>
