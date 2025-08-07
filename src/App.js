@@ -80,7 +80,7 @@ function App() {
     setResult(null);
   };
 
-  const currentUrl = window.location.href;
+ const currentUrl = "https://man-isha.github.io/my-react-app";
 
   return (
     <div style={{ padding: "40px", fontFamily: "Arial", fontSize: "28px" }}>
