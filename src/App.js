@@ -16,12 +16,11 @@ const firebaseConfig = {
   apiKey: "AIzaSyA_t0Dy1suCtHT-BA6dZWJ3pM2D77h5v7w",
   authDomain: "my-react-app-4ed71.firebaseapp.com",
   projectId: "my-react-app-4ed71",
-  storageBucket: "my-react-app-4ed71.appspot.com",
+  storageBucket: "my-react-app-4ed71.firebasestorage.app",
   messagingSenderId: "79329533394",
   appId: "1:79329533394:web:b2e2c869c0a41a4f17fc0b",
   measurementId: "G-8ZW9F9QTEJ"
 };
-
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -81,7 +80,7 @@ function App() {
     setResult(null);
   };
 
- const currentUrl = "https://man-isha.github.io/my-react-app";
+  const currentUrl = "https://man-isha.github.io/my-react-app";
 
   return (
     <div style={{ padding: "40px", fontFamily: "Arial", fontSize: "28px" }}>
@@ -119,6 +118,21 @@ function App() {
       <button onClick={clearResponses} style={{ fontSize: "24px", padding: "10px 20px" }}>
         Reset Responses
       </button>
+
+      <div style={{ marginTop: "30px" }}>
+        <h2>Live Responses</h2>
+        {responses.length === 0 ? (
+          <p>No responses yet</p>
+        ) : (
+          <ul>
+            {responses.map((r) => (
+              <li key={r.name}>
+                {r.name}: {r.guess}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
 
       {result && (
         <div style={{ marginTop: "30px" }}>
