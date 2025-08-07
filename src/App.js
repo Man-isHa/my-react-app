@@ -13,12 +13,13 @@ import {
 } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyA_t0Dy1suCtHT-BA6dZWJ3pM2D77h5v7w",
+  authDomain: "my-react-app-4ed71.firebaseapp.com",
+  projectId: "my-react-app-4ed71",
+  storageBucket: "my-react-app-4ed71.firebasestorage.app",
+  messagingSenderId: "79329533394",
+  appId: "1:79329533394:web:b2e2c869c0a41a4f17fc0b",
+  measurementId: "G-8ZW9F9QTEJ"
 };
 
 const app = initializeApp(firebaseConfig);
