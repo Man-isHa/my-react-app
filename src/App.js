@@ -103,6 +103,11 @@ const App = () => {
     const deletions = querySnapshot.docs.map((docSnap) => deleteDoc(doc(db, "responses", docSnap.id)));
     await Promise.all(deletions);
     alert("All responses have been reset.");
+
+    // Reset local state
+    setSubmitted(false);
+    setName("");
+    setGuess("");
   };
 
   return (
