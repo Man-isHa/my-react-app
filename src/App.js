@@ -16,7 +16,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyA_t0Dy1suCtHT-BA6dZWJ3pM2D77h5v7w",
   authDomain: "my-react-app-4ed71.firebaseapp.com",
   projectId: "my-react-app-4ed71",
-  storageBucket: "my-react-app-4ed71.firebasestorage.app",
+  storageBucket: "my-react-app-4ed71.appspot.com",
   messagingSenderId: "79329533394",
   appId: "1:79329533394:web:b2e2c869c0a41a4f17fc0b",
   measurementId: "G-8ZW9F9QTEJ"
@@ -82,6 +82,7 @@ function App() {
 
   const currentUrl = "https://man-isha.github.io/my-react-app";
 
+
   return (
     <div style={{ padding: "40px", fontFamily: "Arial", fontSize: "28px" }}>
       <h1>Guess 2/3 of the Average</h1>
@@ -121,17 +122,12 @@ function App() {
 
       <div style={{ marginTop: "30px" }}>
         <h2>Live Responses</h2>
-        {responses.length === 0 ? (
-          <p>No responses yet</p>
-        ) : (
-          <ul>
-            {responses.map((r) => (
-              <li key={r.name}>
-                {r.name}: {r.guess}
-              </li>
-            ))}
-          </ul>
-        )}
+        <ul style={{ fontSize: "24px" }}>
+          {responses.map((r) => (
+            <li key={r.id}>{r.name}: {r.guess}</li>
+          ))}
+        </ul>
+        {responses.length === 0 && <p style={{ fontSize: "24px" }}>No responses yet</p>}
       </div>
 
       {result && (
