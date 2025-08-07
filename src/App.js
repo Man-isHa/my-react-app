@@ -5,7 +5,7 @@ import { initializeApp } from "firebase/app";
 import {
   getFirestore,
   collection,
-  addDoc,
+  setDoc,
   onSnapshot,
   deleteDoc,
   getDocs,
@@ -42,7 +42,7 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name || isNaN(guess) || guess < 1 || guess > 100) return;
-    await addDoc(collection(db, "responses"), {
+    await setDoc(doc(db, "responses", name), {
       name,
       guess: Number(guess),
       timestamp: new Date(),
@@ -54,16 +54,7 @@ function App() {
   const handleComplete = () => {
     if (responses.length === 0) return;
 
-    const playerMap = new Map();
-    responses.forEach(({ name, guess }) => {
-      if (!playerMap.has(name)) playerMap.set(name, []);
-      playerMap.get(name).push(guess);
-    });
-
-    const averaged = Array.from(playerMap.entries()).map(([name, guesses]) => {
-      const avg = guesses.reduce((a, b) => a + b, 0) / guesses.length;
-      return { name, guess: avg };
-    });
+    const averaged = responses.map(({ name, guess }) => ({ name, guess }));
 
     const totalAvg = averaged.reduce((sum, p) => sum + p.guess, 0) / averaged.length;
     const target = (2 / 3) * totalAvg;
@@ -81,7 +72,15 @@ function App() {
     setResult({ target: target.toFixed(2), winner });
   };
 
-  const currentUrl = "https://man-isha.github.io/my-react-app";
+  const clearResponses = async () => {
+    const querySnapshot = await getDocs(collection(db, "responses"));
+    for (let docu of querySnapshot.docs) {
+      await deleteDoc(doc(db, "responses", docu.id));
+    }
+    setResult(null);
+  };
+
+  const currentUrl = window.location.href;
 
   return (
     <div style={{ padding: "40px", fontFamily: "Arial", fontSize: "28px" }}>
@@ -112,8 +111,12 @@ function App() {
         <QRCode value={currentUrl} size={200} />
       </div>
 
-      <button onClick={handleComplete} style={{ fontSize: "24px", padding: "10px 20px" }}>
+      <button onClick={handleComplete} style={{ fontSize: "24px", padding: "10px 20px", marginRight: "10px" }}>
         Complete and Show Winner
+      </button>
+
+      <button onClick={clearResponses} style={{ fontSize: "24px", padding: "10px 20px" }}>
+        Reset Responses
       </button>
 
       {result && (
