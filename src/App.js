@@ -5,12 +5,13 @@ import { initializeApp } from "firebase/app";
 import {
   getFirestore,
   collection,
-  addDoc,
+  setDoc,
   onSnapshot,
   deleteDoc,
   getDocs,
   doc,
 } from "firebase/firestore";
+import { v4 as uuidv4 } from "uuid";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA_t0Dy1suCtHT-BA6dZWJ3pM2D77h5v7w",
@@ -30,6 +31,11 @@ function App() {
   const [guess, setGuess] = useState("");
   const [responses, setResponses] = useState([]);
   const [result, setResult] = useState(null);
+  const [clientId] = useState(() => localStorage.getItem("clientId") || uuidv4());
+
+  useEffect(() => {
+    localStorage.setItem("clientId", clientId);
+  }, [clientId]);
 
   useEffect(() => {
     const unsub = onSnapshot(collection(db, "responses"), (snapshot) => {
@@ -42,12 +48,11 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name || isNaN(guess) || guess < 1 || guess > 100) return;
-    await addDoc(collection(db, "responses"), {
+    await setDoc(doc(db, "responses", clientId), {
       name,
       guess: Number(guess),
       timestamp: new Date(),
     });
-    setName("");
     setGuess("");
   };
 
