@@ -106,7 +106,7 @@ function App() {
     setIsComplete(true);
   };
 
-  const currentUrl = window.location.href;
+  const currentUrl = "https://man-isha.github.io/my-react-app";
 
   const chartData = {
     labels: Array.from(new Set(scans.map((scan) => scan.name))),
